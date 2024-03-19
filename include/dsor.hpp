@@ -43,6 +43,13 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
   // perform filtering
   for (pcl::PointCloud<PointT>::iterator it = input_cloud->begin();
        it != input_cloud->end(); ++it) {
+    
+    // only process points within the dust range
+    float range = sqrt(pow(it->x, 2) + pow(it->y, 2) + pow(it->z, 2));
+    if (range < 1.0 || range > 3.0) {
+      continue;
+    }
+
     // k nearest search
     kd_tree.nearestKSearch(*it, mean_k, pointIdxNKNSearch,
                            pointNKNSquaredDistance);
@@ -66,7 +73,6 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
       (sq_sum - sum * sum / static_cast<double>(mean_distances.size())) /
       (static_cast<double>(mean_distances.size()) - 1);
   double stddev = sqrt(variance);
-  ROS_DEBUG_STREAM("mean: " << mean << " var: " << variance);
 
   // calculate distance threshold (PCL sor implementation)
   double distance_threshold = (mean + std_mul * stddev);
@@ -76,10 +82,14 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
        it != input_cloud->end(); ++it) {
     // calculate distance of every point from the sensor
     float range = sqrt(pow(it->x, 2) + pow(it->y, 2) + pow(it->z, 2));
+    if (range < 1.0 || range > 3.0) {
+      filtered_cloud->push_back(*it);
+      continue;
+    }
+
     // dynamic threshold: as a point is farther away from the sensor,
     // the threshold increases
     double dynamic_threshold = distance_threshold * range_mul * range;
-    ROS_DEBUG_STREAM("dynamic threshold: " << dynamic_threshold);
 
     // a distance lower than the threshold is an inlier
     if (mean_distances[i] < dynamic_threshold) {

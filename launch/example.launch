@@ -2,11 +2,12 @@
 <launch>
 
   <node pkg="dsor_filter" type="example" name="example" output="screen">
-    <remap from="~cloud_in" to="/points_raw" />
-    <remap from="~filtered_cloud" to="~dsor_cloud" />
+    <remap from="~cloud_in" to="/pc_sensor" />
+    <remap from="~filtered_cloud" to="/pc_sensor_filtered" />
     <param name="k" type="int" value="5" />
-    <param name="std" type="double" value="0.01" />
-    <param name="range_mul" type="double" value="0.05" />
+    <param name="std" type="double" value="1.0" />
+    <param name="range_mul" type="double" value="0.5" />
+    <param name="negative" type="bool" value="false" />
   </node>
 
 </launch>

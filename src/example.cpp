@@ -22,6 +22,7 @@
 
 int k_;
 float std_, range_mul_;
+bool negative_;
 
 ros::Publisher cloud_pub;
 
@@ -38,13 +39,12 @@ void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& input) {
   // DSOR filter
   pcl::PointCloud<PointT>::Ptr cloud_filtered_dsor(
       new pcl::PointCloud<PointT>);
-  cloud_filtered_dsor = dsor(input_cloud, k_, std_, range_mul_, false);
+  cloud_filtered_dsor = dsor(input_cloud, k_, std_, range_mul_, negative_);
 
   // publish filtered cloud
   sensor_msgs::PointCloud2 filtered_cloud;
   pcl::toROSMsg(*cloud_filtered_dsor, filtered_cloud);
   filtered_cloud.header.frame_id = input->header.frame_id;
-  filtered_cloud.header.stamp = ros::Time::now();
   cloud_pub.publish(filtered_cloud);
 }
 
@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
   nh.getParam("k", k_);
   nh.getParam("std", std_);
   nh.getParam("range_mul", range_mul_);
+  nh.getParam("negative", negative_);
 
   // subscribers & publishers
   ros::Subscriber cloud_sub = nh.subscribe("cloud_in", 1, cloud_cb);
