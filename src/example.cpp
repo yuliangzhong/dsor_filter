@@ -21,7 +21,7 @@
 #include "dsor.hpp"
 
 int k_;
-float std_, range_mul_;
+float std_up_, std_low_, range_mul_;
 bool negative_;
 
 ros::Publisher cloud_pub;
@@ -39,7 +39,7 @@ void cloud_cb(const sensor_msgs::PointCloud2ConstPtr& input) {
   // DSOR filter
   pcl::PointCloud<PointT>::Ptr cloud_filtered_dsor(
       new pcl::PointCloud<PointT>);
-  cloud_filtered_dsor = dsor(input_cloud, k_, std_, range_mul_, negative_);
+  cloud_filtered_dsor = dsor(input_cloud, k_, std_up_, std_low_, range_mul_, negative_);
 
   // publish filtered cloud
   sensor_msgs::PointCloud2 filtered_cloud;
@@ -55,7 +55,8 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh("~");
   // read params from launch file
   nh.getParam("k", k_);
-  nh.getParam("std", std_);
+  nh.getParam("std_up", std_up_);
+  nh.getParam("std_low", std_low_);
   nh.getParam("range_mul", range_mul_);
   nh.getParam("negative", negative_);
 

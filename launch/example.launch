@@ -1,13 +1,21 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="if_play" default="false"/>
   <node pkg="dsor_filter" type="example" name="example" output="screen">
     <remap from="~cloud_in" to="/pc_sensor" />
     <remap from="~filtered_cloud" to="/pc_sensor_filtered" />
-    <param name="k" type="int" value="5" />
-    <param name="std" type="double" value="1.0" />
+    <param name="k" type="int" value="8" />
+    <param name="std_up" type="double" value="1.5" />
+    <param name="std_low" type="double" value="1.5" />
     <param name="range_mul" type="double" value="0.5" />
-    <param name="negative" type="bool" value="false" />
+    <param name="negative" type="bool" value="$(arg if_play)" />
   </node>
+
+  <arg name="dataset_name" default="grise_dust"/>
+  <arg name="bag_file" default="/home/ubuntu/Downloads/dataset/$(arg dataset_name)/processed/data_processed_sparse.bag"/>
+  <node name="player" pkg="rosbag" type="play" output="screen" args="-r 1 -q --clock $(arg bag_file)" if="$(arg if_play)"/>
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d /home/ubuntu/default.rviz" if="$(arg if_play)"/>
 
 </launch>

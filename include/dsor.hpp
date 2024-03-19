@@ -24,7 +24,7 @@ using PointT = pcl::PointXYZ;
 
 // dynamic stastical outlier filter
 pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
-                                  int mean_k, float std_mul, float range_mul,
+                                  int mean_k, float std_up, float std_low, float range_mul,
                                   bool negative) {
   // initialize cloud to hold filtered values
   pcl::PointCloud<PointT>::Ptr filtered_cloud(new pcl::PointCloud<PointT>);
@@ -46,7 +46,7 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
     
     // only process points within the dust range
     float range = sqrt(pow(it->x, 2) + pow(it->y, 2) + pow(it->z, 2));
-    if (range < 1.0 || range > 3.0) {
+    if (range < 1.0 || range > 3.5) {
       continue;
     }
 
@@ -75,14 +75,15 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
   double stddev = sqrt(variance);
 
   // calculate distance threshold (PCL sor implementation)
-  double distance_threshold = (mean + std_mul * stddev);
+  double distance_threshold = (mean + std_up * stddev);
+  double min_distance_threshold = (mean - std_low * stddev);
   // iterate through vector
   int i = 0;
   for (pcl::PointCloud<PointT>::iterator it = input_cloud->begin();
        it != input_cloud->end(); ++it) {
     // calculate distance of every point from the sensor
     float range = sqrt(pow(it->x, 2) + pow(it->y, 2) + pow(it->z, 2));
-    if (range < 1.0 || range > 3.0) {
+    if (range < 1.0 || range > 3.5) {
       filtered_cloud->push_back(*it);
       continue;
     }
@@ -90,9 +91,11 @@ pcl::PointCloud<PointT>::Ptr dsor(pcl::PointCloud<PointT>::Ptr &input_cloud,
     // dynamic threshold: as a point is farther away from the sensor,
     // the threshold increases
     double dynamic_threshold = distance_threshold * range_mul * range;
+    double dynamic_min_threshold = min_distance_threshold * range_mul * range;
 
     // a distance lower than the threshold is an inlier
-    if (mean_distances[i] < dynamic_threshold) {
+    if (mean_distances[i] < dynamic_threshold &&
+        mean_distances[i] > dynamic_min_threshold) {
       filtered_cloud->push_back(*it);
     } else {
       negative_cloud->push_back(*it);
