@@ -1,3 +1,7 @@
+This is a fork. Please see the original repo: https://bitbucket.org/autonomymtu/dsor_filter/src/master/
+
+---
+
 # DSOR filter #
 
 The Dynamic Statistical Outlier Removal (DSOR) filter can de-noise LiDAR point clouds corrupted by falling snow. It can also be used as a general purpose outlier removal filter and is fully ROS compatible.
