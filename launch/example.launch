@@ -5,8 +5,8 @@
   <node pkg="dsor_filter" type="example" name="example" output="screen">
     <remap from="~cloud_in" to="/pc_sensor" />
     <remap from="~filtered_cloud" to="/pc_sensor_filtered" />
-    <param name="k" type="int" value="8" />
-    <param name="std_up" type="double" value="1.5" />
+    <param name="k" type="int" value="5" />
+    <param name="std_up" type="double" value="0.5" />
     <param name="std_low" type="double" value="1.5" />
     <param name="range_mul" type="double" value="0.5" />
     <param name="negative" type="bool" value="$(arg if_play)" />
